@@ -5,6 +5,8 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from bs4 import BeautifulSoup
+from jinja2 import Environment, FileSystemLoader
+from rmail import database
 from rmail.vault import Vault
 
 def get_password(domain_name, username):
@@ -84,3 +86,13 @@ def send_email(sender_row, receiver_email, subject, html_body, attachments=None)
         print(f"SMTP Error: {e}")
         raise e
 
+def render_template(template_name, context={}):
+    """Renders a Jinja2 template from the ~/.r-mail/templates directory."""
+    template_dir = database.APP_DIR / "templates"
+
+    env = Environment(loader=FileSystemLoader(str(template_dir)))
+    try:
+        template = env.get_template(template_name)
+        return template.render(**context)
+    except Exception as e:
+        raise ValueError(f"Template Error: {e}")

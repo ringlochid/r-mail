@@ -39,8 +39,10 @@ from rmail.commands.domain import domain_bp
 from rmail.commands.sender import sender_bp
 from rmail.commands.receiver  import receiver_bp
 from rmail.commands.send import send_cmd
+from rmail.commands.template import template_bp
 
 cli.add_command(domain_bp)
 cli.add_command(sender_bp)
 cli.add_command(receiver_bp)
 cli.add_command(send_cmd)
+cli.add_command(template_bp)
