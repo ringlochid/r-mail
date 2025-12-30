@@ -1,0 +1,7 @@
+click
+jinja2
+rich
+python-dotenv
+cryptography
+beautifulsoup4
+aiosmtpd

@@ -1,0 +1,7 @@
+ROADMAP.md
+venv/
+__pycache__/
+*.egg-info/
+.env
+.r-mail/
+*.pyc
