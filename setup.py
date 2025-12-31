@@ -12,6 +12,7 @@ setup(
         'python-dotenv',
         'cryptography',
         'beautifulsoup4',
+        'markdown',
     ],
     entry_points={
         'console_scripts': [

@@ -54,6 +54,7 @@ def edit_template(name):
 
 @template_bp.command(name='delete')
 @click.argument('name')
+@click.confirmation_option(prompt='Delete this template?')
 def delete_template(name):
     """Delete a template."""
     if not name.endswith('.html'):
