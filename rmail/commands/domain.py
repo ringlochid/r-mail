@@ -43,24 +43,35 @@ def add_domain(name, host, port, user, security):
     except Exception as e:
         console.print(f"[bold red]Failed to add domain:[/bold red] {e}")
 
+
 @domain_bp.command(name='list')
 @click.argument('query', required=False)
-def list_domains(query):
-    """List domains. Optional: filter by query"""
-    domains = query_db("SELECT name, smtp_host, smtp_port, smtp_user, security FROM domains")
+@click.option('--limit', default=10, help='Limit results')
+@click.option('--offset', default=0, help='Pagination offset')
+def list_domains(query, limit, offset):
+    """List domains with pagination and search."""
+    sql = "SELECT name, smtp_host, smtp_port, smtp_user, security FROM domains"
+    params = []
 
-    sql = "SELECT name, smtp_host, smtp_port, smtp_user, security FROM domains "
-    params = ()
     if query:
-        sql += "WHERE name LIKE ? OR smtp_host LIKE ?"
-        wildcard = f"%{query}%"
-        params = (wildcard, wildcard)
+        sql += " WHERE name LIKE ? OR smtp_host LIKE ?"
+        params.extend([f"%{query}%", f"%{query}%"])
+
+    sql += " LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
+
     domains = query_db(sql, params)
+
     if not domains:
-        console.print("[yellow]No domains configured.[/yellow]")
+        if query:
+            console.print(f"[yellow]No domains found matching '{query}'.[/yellow]")
+        elif offset > 0:
+            console.print("[yellow]No more domains (end of list).[/yellow]")
+        else:
+            console.print("[yellow]No domains configured. Use 'r-mail domain add' to create one.[/yellow]")
         return
 
-    table = Table(title="SMTP Domains")
+    table = Table(title=f"SMTP Domains {'(Filtered)' if query else ''}")
     table.add_column("Name", style="cyan")
     table.add_column("Host", style="magenta")
     table.add_column("User", style="green")
@@ -70,6 +81,7 @@ def list_domains(query):
         table.add_row(domain['name'], f"{domain['smtp_host']}:{domain['smtp_port']}", domain['smtp_user'], domain['security'])
 
     console.print(table)
+
 
 @domain_bp.command(name='delete')
 @click.argument('name')

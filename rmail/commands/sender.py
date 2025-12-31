@@ -99,24 +99,34 @@ def delete_sender(alias):
 
 @sender_bp.command(name='list')
 @click.argument('query', required=False)
-def list_senders(query):
-    """List senders. Optional: filter by query."""
+@click.option('--limit', default=10, help='Limit results')
+@click.option('--offset', default=0, help='Pagination offset')
+def list_senders(query, limit, offset):
+    """List senders with pagination and search."""
     sql = """
         SELECT s.alias, s.fullname, s.email, d.name as domain_name
         FROM senders s
         JOIN domains d ON s.domain_id = d.id
     """
-    params = ()
+    params = []
 
     if query:
         sql += " WHERE s.alias LIKE ? OR s.fullname LIKE ? OR s.email LIKE ?"
         wildcard = f"%{query}%"
-        params = (wildcard, wildcard, wildcard)
+        params.extend([wildcard, wildcard, wildcard])
+
+    sql += " LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
 
     senders = query_db(sql, params)
 
     if not senders:
-        console.print("[yellow]No senders found.[/yellow]")
+        if query:
+            console.print(f"[yellow]No senders found matching '{query}'.[/yellow]")
+        elif offset > 0:
+            console.print("[yellow]No more senders (end of list).[/yellow]")
+        else:
+            console.print("[yellow]No senders configured. Use 'r-mail sender add' to create one.[/yellow]")
         return
 
     table = Table(title=f"Sender Identities {'(Filtered)' if query else ''}")

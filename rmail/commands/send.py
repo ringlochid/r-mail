@@ -1,17 +1,18 @@
 import click
 import sys
 import markdown
+from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
-from rmail.database import get_db, query_db
+from rmail.database import get_db, query_db, APP_DIR  # Import APP_DIR
 from rmail import engine
 
 console = Console()
 
 @click.command(name='send')
-@click.option('-f', '--from', 'sender_alias', prompt=True, required=True, help='Sender alias')
-@click.option('-t', '--to', 'receiver_input', prompt=True, required=True, help='Receiver alias OR email')
-@click.option('-s', '--subject', prompt=True, required=True, help='Email Subject')
+@click.option('-f', '--from', 'sender_alias', required=True, help='Sender alias')
+@click.option('-t', '--to', 'receiver_input', required=True, help='Receiver alias OR email')
+@click.option('-s', '--subject', required=True, help='Email Subject')
 @click.option('-b', '--body', help='HTML Body (overrides template)')
 @click.option('-p', '--template', help='Template filename')
 @click.option('-S', '--set', 'context_vars', multiple=True, help='Context variable (key=value)')
@@ -20,9 +21,6 @@ console = Console()
 def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars, attach, editor):
     """Send an email. Opens Vim for body if no args provided."""
 
-    # ... [Resolution Logic for Sender/Receiver is same as before] ...
-    # (Copy the SQL query parts from your previous file here to save space)
-    # ---------------------------------------------------------
     sql = """
         SELECT s.email, s.fullname, d.name as domain_name, d.smtp_host, d.smtp_port, d.smtp_user, d.security
         FROM senders s
@@ -44,11 +42,7 @@ def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars
     else:
         receiver_email = receiver_input
         receiver_name = ""
-    # ---------------------------------------------------------
 
-    final_body = ""
-
-    # 1. Parse Context Variables
     context = {"name": receiver_name, "email": receiver_email}
     for item in context_vars:
         try:
@@ -57,18 +51,34 @@ def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars
         except ValueError:
             pass
 
-    # 2. Determine Body Source
+    final_body = ""
     if body:
         final_body = body
     elif template:
-        if not template.endswith('.html'):
-            template += '.html'
-        final_body = engine.render_template(template, context)
+        # Smart Extension Detection
+        tpl_name = template
+        tpl_dir = APP_DIR / "templates"
+
+        # If user didn't type an extension, check what exists
+        if not (tpl_name.endswith('.html') or tpl_name.endswith('.md')):
+            if (tpl_dir / f"{tpl_name}.md").exists():
+                tpl_name += '.md'
+            elif (tpl_dir / f"{tpl_name}.html").exists():
+                tpl_name += '.html'
+            else:
+                # Default fallback (so the error message says .html)
+                tpl_name += '.html'
+
+        try:
+            final_body = engine.render_template(tpl_name, context)
+        except Exception as e:
+            console.print(f"[bold red]Template Error:[/bold red] {e}")
+            return
+
     else:
-        # Interactive Mode!
+        # Interactive Mode (Vim)
         if sys.stdin.isatty() and editor:
             console.print("[yellow]Opening Vim for Markdown composition...[/yellow]")
-            # Pre-fill with a header
             marker = f"# Message to {receiver_email}\n\n"
             input_text = click.edit(marker, extension=".md")
 
@@ -76,8 +86,6 @@ def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars
                 console.print("[red]Aborted: No message saved.[/red]")
                 return
 
-            # Remove the marker line if it exists
-            # Convert Markdown to HTML
             final_body = markdown.markdown(input_text)
 
             console.print(Panel(final_body, title="Preview (HTML Rendered)"))
@@ -86,7 +94,7 @@ def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars
         else:
             final_body = sys.stdin.read() if not sys.stdin.isatty() else "<p>Empty</p>"
 
-    # 3. Send
+    # Send Logic
     try:
         console.print(f"[dim]Sending from {sender_row['email']} to {receiver_email}...[/dim]")
         engine.send_email(sender_row, receiver_email, subject, final_body, attach)

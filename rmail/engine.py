@@ -1,6 +1,7 @@
 import smtplib
 import ssl
 import os
+import markdown
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -87,12 +88,26 @@ def send_email(sender_row, receiver_email, subject, html_body, attachments=None)
         raise e
 
 def render_template(template_name, context={}):
-    """Renders a Jinja2 template from the ~/.r-mail/templates directory."""
+    """
+    Renders a template.
+    1. Jinja2 renders variables (in both HTML and MD).
+    2. If MD, it then compiles to HTML.
+    """
     template_dir = database.APP_DIR / "templates"
-
     env = Environment(loader=FileSystemLoader(str(template_dir)))
+
     try:
+        # 1. First Pass: Jinja2 Rendering
+        # This turns "# Hello {{ name }}" into "# Hello Leo"
         template = env.get_template(template_name)
-        return template.render(**context)
+        rendered_content = template.render(**context)
+
+        # 2. Second Pass: Markdown Compilation
+        if template_name.endswith('.md'):
+            # This turns "# Hello Leo" into "<h1>Hello Leo</h1>"
+            return markdown.markdown(rendered_content)
+
+        return rendered_content
+
     except Exception as e:
         raise ValueError(f"Template Error: {e}")

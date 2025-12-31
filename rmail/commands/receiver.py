@@ -79,20 +79,30 @@ def delete_receiver(alias):
 
 @receiver_bp.command(name='list')
 @click.argument('query', required=False)
-def list_receivers(query):
-    """List contacts. Optional: filter by query."""
+@click.option('--limit', default=10, help='Limit results')
+@click.option('--offset', default=0, help='Pagination offset')
+def list_receivers(query, limit, offset):
+    """List contacts with pagination and search."""
     sql = "SELECT alias, name, email FROM receivers"
-    params = ()
+    params = []
 
     if query:
         sql += " WHERE alias LIKE ? OR name LIKE ? OR email LIKE ?"
         wildcard = f"%{query}%"
-        params = (wildcard, wildcard, wildcard)
+        params.extend([wildcard, wildcard, wildcard])
+
+    sql += " LIMIT ? OFFSET ?"
+    params.extend([limit, offset])
 
     receivers = query_db(sql, params)
 
     if not receivers:
-        console.print("[yellow]Address book is empty or no matches found.[/yellow]")
+        if query:
+            console.print(f"[yellow]No contacts found matching '{query}'.[/yellow]")
+        elif offset > 0:
+            console.print("[yellow]No more contacts (end of list).[/yellow]")
+        else:
+            console.print("[yellow]Address book is empty. Use 'r-mail receiver add' to create one.[/yellow]")
         return
 
     table = Table(title=f"Address Book {'(Filtered)' if query else ''}")
