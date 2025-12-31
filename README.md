@@ -9,7 +9,7 @@
 * **Smart Templates:** Jinja2 templates with YAML frontmatter for metadata and automatic variable prompting.
 * **Context Profiles:** Database-backed profiles for managing recurring variables (Signatures, Links, Company Info).
 * **Encrypted Vault:** SMTP passwords stored locally using Fernet encryption.
-* **Cloud Ready:** Bypasses port 25/587 blocks using alternative ports (2587) for providers like AWS SES.
+* **Cloud Ready:** Bypasses port 25/587 blocks(if you provider blocks these ports) using alternative ports (2587) for providers like AWS SES.
 * **SQLite Backend:** Full CRUD management for Senders, Receivers, and Contexts with fuzzy search.
 
 ## 🛠️ Installation
@@ -85,6 +85,8 @@ r-mail send -f me -t email@example.com -s "Hello World"
 ---
 
 ## 📝 Templates & Contexts
+
+[Guide and example for creating smart templates](./GUIDE.md)
 
 ### Smart Templates (Markdown + Frontmatter)
 Create templates that define their own required variables.

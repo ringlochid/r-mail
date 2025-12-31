@@ -1,0 +1,47 @@
+---
+subject: "System Log: {{ log_title }}"
+variables:
+  log_title: "Process Name"
+  status: "SUCCESS"
+  message: "Main log message output"
+  command: "The command you ran"
+---
+<!DOCTYPE html>
+<html>
+<body style="margin:0; padding:20px; background-color:#1e1e1e; font-family: 'Courier New', Courier, monospace;">
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:600px; margin:0 auto; background-color:#000000; border-radius:8px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+
+    <tr>
+      <td style="background-color:#333333; padding:10px 15px;">
+        <span style="display:inline-block; width:12px; height:12px; background-color:#ff5f56; border-radius:50%; margin-right:6px;"></span>
+        <span style="display:inline-block; width:12px; height:12px; background-color:#ffbd2e; border-radius:50%; margin-right:6px;"></span>
+        <span style="display:inline-block; width:12px; height:12px; background-color:#27c93f; border-radius:50%;"></span>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:30px; color:#00ff00;">
+        <p style="margin:0 0 20px 0; opacity:0.7;">user@ringlochid:~$ {{ command }}</p>
+
+        <h2 style="margin:0 0 10px 0; font-size:24px; color:#ffffff;">> {{ log_title }}</h2>
+
+        <div style="border-left: 2px solid #333; padding-left: 15px; margin: 20px 0; color:#cccccc;">
+          {{ message }}
+        </div>
+
+        <table width="100%" bgcolor="#111111" style="border:1px solid #333; margin-top:20px;">
+          <tr>
+            <td style="padding:10px; font-size:14px;">
+              STATUS: <span style="background-color:#004400; color:#00ff00; padding:2px 6px;">{{ status }}</span>
+            </td>
+          </tr>
+        </table>
+
+        <br>
+        <p style="margin:0;">_</p> </td>
+    </tr>
+  </table>
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+---
+subject: "Receipt for {{ project }}"
+variables:
+  project: "Project Name"
+  date: "2025-12-31"
+  item_1: "Task A Completed"
+  price_1: "Done"
+  item_2: "Bug B Fixed"
+  price_2: "Done"
+  total: "100% Complete"
+---
+<!DOCTYPE html>
+<html>
+<body style="margin:0; padding:20px; background-color:#e5e5e5; font-family: 'Courier New', Courier, monospace;">
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width:400px; margin:0 auto; background-color:#fff1e0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+
+    <tr>
+      <td style="border-bottom: 2px dashed #d1d5db; padding: 20px; text-align:center;">
+        <h2 style="margin:0; letter-spacing:2px; font-size:24px;">R-MAIL INC.</h2>
+        <p style="margin:5px 0 0 0; font-size:12px; color:#666;">AUTOMATED MESSAGING SYSTEM</p>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="padding:20px 30px;">
+        <p style="border-bottom: 1px solid #000; padding-bottom:5px;">
+          ORDER: {{ project }}<br>
+          DATE: {{ date }}
+        </p>
+
+        <table width="100%" cellpadding="5">
+          <tr>
+            <td align="left">{{ item_1 }}</td>
+            <td align="right"><strong>{{ price_1 }}</strong></td>
+          </tr>
+          <tr>
+            <td align="left">{{ item_2 }}</td>
+            <td align="right"><strong>{{ price_2 }}</strong></td>
+          </tr>
+          <tr>
+            <td colspan="2" style="border-bottom:1px dashed #000;"></td>
+          </tr>
+          <tr>
+            <td align="left" style="font-size:18px; padding-top:15px;">TOTAL:</td>
+            <td align="right" style="font-size:18px; padding-top:15px;"><strong>{{ total }}</strong></td>
+          </tr>
+        </table>
+
+        <div style="margin-top:40px; text-align:center;">
+          <p style="font-size:10px; margin:0;">THANK YOU FOR YOUR BUSINESS</p>
+          <h3 style="margin:10px 0; font-family: 'Libre Barcode 39', cursive;">||| || ||| | |||| |||</h3>
+        </div>
+      </td>
+    </tr>
+
+    <tr>
+      <td style="border-top: 2px dashed #d1d5db; height:10px;"></td>
+    </tr>
+  </table>
+
+</body>
+</html>

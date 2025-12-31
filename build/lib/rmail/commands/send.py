@@ -2,6 +2,7 @@ import click
 import sys
 import markdown
 import json
+from jinja2 import Environment
 from typing import Any
 from rich.console import Console
 from rich.panel import Panel
@@ -92,9 +93,6 @@ def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars
         try:
             meta, raw_content, ext = engine.get_template_meta(template)
 
-            if not subject and 'subject' in meta:
-                subject = meta['subject']
-
             if 'variables' in meta:
                 missing_vars = [k for k in meta['variables'].keys() if k not in final_context]
 
@@ -106,6 +104,16 @@ def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars
                         if var_name not in final_context:
                             user_val = click.prompt(f"{var_name} ({description})")
                             final_context[var_name] = user_val
+
+            if not subject and 'subject' in meta:
+                raw_subject = meta['subject']
+
+                # Manually render the subject string
+                env = Environment()
+                subject_tmpl = env.from_string(raw_subject)
+                subject = subject_tmpl.render(**final_context)
+
+                console.print(f"[dim]Using subject: {subject}[/dim]")
 
             final_body = engine.render_template_content(raw_content, ext, final_context)
 
