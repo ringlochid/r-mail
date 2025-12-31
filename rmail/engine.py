@@ -2,6 +2,7 @@ import smtplib
 import ssl
 import os
 import markdown
+import frontmatter
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -87,27 +88,43 @@ def send_email(sender_row, receiver_email, subject, html_body, attachments=None)
         print(f"SMTP Error: {e}")
         raise e
 
-def render_template(template_name, context={}):
+def get_template_meta(template_name):
     """
-    Renders a template.
-    1. Jinja2 renders variables (in both HTML and MD).
-    2. If MD, it then compiles to HTML.
+    Returns: (metadata_dict, content_string, extension_found)
     """
     template_dir = database.APP_DIR / "templates"
-    env = Environment(loader=FileSystemLoader(str(template_dir)))
 
-    try:
-        # 1. First Pass: Jinja2 Rendering
-        # This turns "# Hello {{ name }}" into "# Hello Leo"
-        template = env.get_template(template_name)
-        rendered_content = template.render(**context)
+    # Try finding the file and detecting extension
+    file_path = None
+    extension = ".html" # Default
 
-        # 2. Second Pass: Markdown Compilation
-        if template_name.endswith('.md'):
-            # This turns "# Hello Leo" into "<h1>Hello Leo</h1>"
-            return markdown.markdown(rendered_content)
+    if (template_dir / template_name).exists():
+        file_path = template_dir / template_name
+        extension = file_path.suffix
+    elif (template_dir / f"{template_name}.md").exists():
+        file_path = template_dir / f"{template_name}.md"
+        extension = ".md"
+    elif (template_dir / f"{template_name}.html").exists():
+        file_path = template_dir / f"{template_name}.html"
+        extension = ".html"
 
-        return rendered_content
+    if not file_path:
+        raise ValueError(f"Template '{template_name}' not found.")
 
-    except Exception as e:
-        raise ValueError(f"Template Error: {e}")
+    post = frontmatter.load(str(file_path))
+    return post.metadata, post.content, extension
+
+def render_template_content(content, extension, context={}):
+    """
+    Renders the raw content string (stripped of frontmatter).
+    """
+    # 1. Jinja2 Render
+    env = Environment()
+    template = env.from_string(content)
+    rendered = template.render(**context)
+
+    # 2. Markdown Render (if applicable)
+    if extension == '.md':
+        return markdown.markdown(rendered)
+    return rendered
+

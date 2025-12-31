@@ -30,3 +30,12 @@ CREATE TABLE IF NOT EXISTS receivers (
     notes TEXT,
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
+
+-- 4. CONTEXTS: New workflow
+CREATE TABLE IF NOT EXISTS contexts (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    template_name TEXT, -- Optional: Link to a specific template filename
+    data JSON NOT NULL  -- Store the variables as a JSON string
+);

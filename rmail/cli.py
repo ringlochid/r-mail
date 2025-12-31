@@ -41,6 +41,7 @@ from rmail.commands.receiver  import receiver_bp
 from rmail.commands.send import send_cmd
 from rmail.commands.template import template_bp
 from rmail.commands.config import config_bp
+from rmail.commands.context import context_bp
 
 cli.add_command(config_bp)
 cli.add_command(domain_bp)
@@ -48,3 +49,4 @@ cli.add_command(sender_bp)
 cli.add_command(receiver_bp)
 cli.add_command(send_cmd)
 cli.add_command(template_bp)
+cli.add_command(context_bp)
