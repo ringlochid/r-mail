@@ -62,8 +62,8 @@ Add your SMTP provider.
 
 ```bash
 r-mail domain add --name "aws" \
-    --host "email-smtp.ap-southeast-2.amazonaws.com" \
-    --port 2587 \
+    --host "email-smtp.your-region-here.amazonaws.com" \
+    --port 2587/587 \
     --user "YOUR_SMTP_USERNAME" \
     --security "STARTTLS"
 ```
@@ -72,14 +72,14 @@ r-mail domain add --name "aws" \
 Link a "From" address (alias) to your configured domain.
 
 ```bash
-r-mail sender add --alias "me" --name "Leo Zhang" --email "me@ringlochid.me" --domain "aws"
+r-mail sender add --alias "me" --name "myidentity" --email "me@example.com" --domain "smtpservice"
 ```
 
 ### 4. Send Your First Email
 If you don't provide a body flag, **Vim** (or your default editor) will open automatically.
 
 ```bash
-r-mail send -f me -t ringlochid@gmail.com -s "Hello World"
+r-mail send -f me -t email@example.com -s "Hello World"
 ```
 
 ---
@@ -117,8 +117,8 @@ Manage recurring data sets (like signatures or project info) in the database.
 *(Vim opens JSON editor)*
 ```json
 {
-    "footer": "Sent from my VPS",
-    "company": "Ringlochid Inc"
+    "footer": "Sent from $(hostname)",
+    "company": "Example inc"
 }
 ```
 
