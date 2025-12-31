@@ -28,7 +28,7 @@ The recommended way to install **r-mail** is using `pipx`. This creates an isola
 
 2. **Clone & Install r-mail:**
    ```bash
-   git clone [https://github.com/ringlochid/r-mail.git](https://github.com/ringlochid/r-mail.git)
+   git clone https://github.com/ringlochid/r-mail.git
    cd r-mail
 
    # Install globally
