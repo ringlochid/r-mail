@@ -14,17 +14,36 @@
 
 ## 🛠️ Installation
 
+The recommended way to install **r-mail** is using `pipx`. This creates an isolated environment for the tool while making the `r-mail` command available globally.
+
+### Steps
+
+1. **Install pipx** (if not already installed):
+   ```bash
+   # Debian / Ubuntu
+   sudo apt update && sudo apt install -y pipx
+   pipx ensurepath
+   ```
+   *(Restart your terminal after this step if it's your first time using pipx)*
+
+2. **Clone & Install r-mail:**
+   ```bash
+   git clone [https://github.com/ringlochid/r-mail.git](https://github.com/ringlochid/r-mail.git)
+   cd r-mail
+
+   # Install globally
+   pipx install .
+   ```
+
+3. **Initialize the Database:**
+   ```bash
+   r-mail init
+   ```
+
+### 👨‍💻 For Developers
+If you are modifying the code, install in "Editable Mode" so changes apply instantly:
 ```bash
-# 1. Clone the repo
-git clone [https://github.com/ringlochid/r-mail.git](https://github.com/ringlochid/r-mail.git)
-cd r-mail
-
-# 2. Create Virtual Env
-python3 -m venv venv
-source venv/bin/activate
-
-# 3. Install Dependencies
-pip install -e .
+pipx install -e . --force
 ```
 
 ## 🚀 Quick Start
