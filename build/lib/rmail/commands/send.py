@@ -17,13 +17,13 @@ console = Console()
 @click.option('-s', '--subject', help='Email Subject (Optional if in template)')
 @click.option('-b', '--body', help='HTML Body (overrides template)')
 @click.option('-p', '--template', help='Template filename')
+@click.option('-M', '--message_file', type=click.File('r'), help='Load text file into {{ message_body }}')
 @click.option('-S', '--set', 'context_vars', multiple=True, help='Context variable (key=value)')
 @click.option('-C', '--context', 'context_profile', help='Load variables from a saved context profile')
 @click.option('-a', '--attach', multiple=True, help='Attachment path')
 @click.option('--editor/--no-editor', default=True, help='Open editor if no body provided')
-def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars, attach, editor, context_profile):
+def send_cmd(sender_alias, receiver_input, subject, body, template, message_file, context_vars, attach, editor, context_profile):
     """Send an email with smart template prompting."""
-
     # -------------------------------------------------------------
     # 1. Resolve Sender
     # -------------------------------------------------------------
@@ -74,6 +74,22 @@ def send_cmd(sender_alias, receiver_input, subject, body, template, context_vars
         except Exception as e:
             console.print(f"[red]Error parsing context data:[/red] {e}")
             return
+
+    if message_file:
+        raw_content = message_file.read()
+        if message_file.name.endswith('.md'):
+            try:
+                # Convert MD -> HTML so it's ready for ANY template
+                html_content = markdown.markdown(raw_content)
+                final_context['message_body'] = html_content
+                console.print(f"[dim]Converted Markdown message from '{message_file.name}'[/dim]")
+            except Exception as e:
+                console.print(f"[bold red]Markdown Error:[/bold red] {e}")
+                return
+        else:
+            # It's a plain text/html file, just pass it through
+            final_context['message_body'] = raw_content
+            console.print(f"[dim]Loaded message from '{message_file.name}'[/dim]")
 
     # B. Layer 2: Parse CLI Flags (Overwrites Profile)
     for item in context_vars:
